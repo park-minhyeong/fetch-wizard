@@ -31,12 +31,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/api-wizard.git"
+    "url": "git+https://github.com/park-minhyeong/api-wizard.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/api-wizard/issues"
+    "url": "https://github.com/park-minhyeong/api-wizard/issues"
   },
-  "homepage": "https://github.com/your-username/api-wizard#readme",
+  "homepage": "https://github.com/park-minhyeong/api-wizard#readme",
   "author": "Min-Hyeong Park <minhyeong.dev@gmail.com>",
   "license": "MIT",
   "dependencies": {},
