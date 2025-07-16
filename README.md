@@ -2,8 +2,6 @@
 
 A powerful TypeScript wrapper for native Fetch API that provides enhanced features including token management, interceptors, and type-safe HTTP requests.
 
-> 🔄 **Migrated from Axios to Fetch**: This library provides 100% API compatibility with axios-wizard while using the native Fetch API under the hood.
-
 ## Features
 
 - 🔒 Built-in token management (access & refresh tokens)
@@ -13,34 +11,20 @@ A powerful TypeScript wrapper for native Fetch API that provides enhanced featur
 - 🛠 Flexible configuration options
 - 📝 Content-type and charset management
 - 🌐 Native Fetch API (smaller bundle size)
-- ⚡ 100% Axios compatibility
+- ⚡ Zero dependencies
 
 ## Installation
 
 ```bash
-npm install fetch-wizard
+npm install api-wizard
 # or
-yarn add fetch-wizard
-```
-
-## Migration from axios-wizard
-
-**No code changes required!** Simply replace the import:
-
-```typescript
-// Before (axios-wizard)
-import { handler } from 'axios-wizard';
-
-// After (fetch-wizard)
-import { handler } from 'fetch-wizard';
-
-// All your existing code works exactly the same! 🎉
+yarn add api-wizard
 ```
 
 ## Basic Usage
 
 ```typescript
-import { handler } from 'fetch-wizard';
+import { handler } from 'api-wizard';
 
 // Define API endpoints configuration
 const apiConfig: Record<string, string> = {
@@ -58,7 +42,7 @@ interface User {
 }
 
 // GET request with version and without version
-const userApi = api.users('v1'); // https://api.users.com/v1
+const userApi = api.users({version: 'v1'}); // https://api.users.com/v1
 const legacyUserApi = api.users(); // https://api.users.com
 
 const getUser = async (id: number) => {
@@ -83,7 +67,8 @@ const createUser = async (userData: CreateUserRequest) => {
 ### Token Management
 
 ```typescript
-const userApi = api.users('v1', {
+const userApi = api.users({
+  version: 'v1',
   interceptor: {
     tokenConfig: {
       // Token storage configuration
@@ -116,7 +101,8 @@ const userApi = api.users('v1', {
 ### Custom Interceptors
 
 ```typescript
-const userApi = api.users('v1', {
+const userApi = api.users({
+  version: 'v1',
   interceptor: {
     onRequest: (config) => {
       // Modify request config
@@ -142,7 +128,7 @@ const userApi = api.users('v1', {
 ### API Versioning & Content Type
 
 ```typescript
-const userApi = api.users('v1', {
+const userApi = api.users({
   // API version will be added to base URL
   version: 'v1',
   
@@ -151,7 +137,7 @@ const userApi = api.users('v1', {
   charset: 'UTF-8',
   accept: 'application/json',
   
-  // Credentials (equivalent to axios withCredentials)
+  // Credentials
   withCredentials: true  // default: true
 });
 
@@ -173,8 +159,8 @@ interface Option {
   accept?: DataType;
   charset?: string;
   interceptor?: Interceptor;
-  withCredentials?: boolean;    // 🆕 Explicit credentials control
-  requestConfig?: FetchRequestConfig; // 🆕 Direct fetch options
+  withCredentials?: boolean;
+  requestConfig?: FetchRequestConfig;
 }
 ```
 
@@ -196,9 +182,22 @@ interface TokenConfig {
 }
 ```
 
+### DataType Options
+
+```typescript
+type DataType =
+  | "application/json"
+  | "application/x-www-form-urlencoded"
+  | "application/xml"
+  | "application/octet-stream"
+  | "multipart/form-data"
+  | "text/plain"
+  | "text/html";
+```
+
 ## Error Handling
 
-**100% Axios compatible error structure:**
+API Wizard provides structured error handling with detailed error information:
 
 ```typescript
 try {
@@ -219,67 +218,82 @@ try {
 }
 ```
 
-## What's New in Fetch-Wizard
+## Key Features
 
-### Improvements over Axios
+### Automatic Token Refresh
 
-- ✅ **Smaller bundle size**: No axios dependency
-- ✅ **Native browser API**: Uses standard Fetch
-- ✅ **Better tree-shaking**: ESM-first design
-- ✅ **Modern standards**: Built for modern browsers
+API Wizard automatically handles token refresh when tokens expire:
 
-### New Features
+- Detects 401 responses
+- Automatically calls refresh endpoint
+- Retries original request with new token
+- Handles concurrent requests during refresh
 
-- 🆕 **withCredentials option**: Explicit control over credentials
-- 🆕 **requestConfig option**: Direct access to fetch options
-- 🆕 **Enhanced error handling**: Axios-compatible + fetch-specific errors
+### Type Safety
 
-### Performance Comparison
-
-| Feature | axios-wizard | fetch-wizard | Improvement |
-|---------|-------------|-------------|-------------|
-| Bundle size | ~45KB | ~12KB | **73% smaller** |
-| Dependencies | axios | none | **0 dependencies** |
-| API compatibility | ✅ | ✅ | **100% compatible** |
-
-## Migration Guide
-
-### Automatic Migration (Recommended)
-
-1. **Replace package**:
-   ```bash
-   npm uninstall axios-wizard
-   npm install fetch-wizard
-   ```
-
-2. **Update imports**:
-   ```typescript
-   // Find and replace in your codebase
-   - import { handler } from 'axios-wizard';
-   + import { handler } from 'fetch-wizard';
-   ```
-
-3. **That's it!** 🎉 Your code should work exactly the same.
-
-### Manual Migration (If needed)
-
-If you have any custom axios-specific configurations:
+Full TypeScript support with generic types:
 
 ```typescript
-// Before (axios-wizard)
-const api = handler(config, {
-  // axios specific options
+// Request and response types are fully typed
+const response = await api.post<CreateUserRequest, User>('/users', userData);
+// response.data is typed as User
+```
+
+### Flexible Configuration
+
+Configure different options for different APIs:
+
+```typescript
+const api = handler({
+  users: 'https://api.users.com',
+  payments: 'https://api.payments.com'
+}, {
+  // Global configuration for all APIs
+  withCredentials: true,
+  contentType: 'application/json'
 });
 
-// After (fetch-wizard) 
-const api = handler(config, {
-  withCredentials: true,  // instead of axios withCredentials
-  requestConfig: {        // direct fetch options
-    signal: abortController.signal,
-    cache: 'no-cache'
-  }
+// API-specific configuration
+const usersApi = api.users({ 
+  version: 'v1',
+  interceptor: { /* user-specific interceptors */ } 
+});
+const paymentsApi = api.payments({ 
+  version: 'v2',
+  contentType: 'application/xml' 
 });
 ```
+
+## API Methods
+
+All standard HTTP methods are supported:
+
+```typescript
+const api = handler({ base: 'https://api.example.com' }).base({version: 'v1'});
+
+// GET
+const users = await api.get<User[]>('/users');
+
+// POST
+const newUser = await api.post<CreateUserRequest, User>('/users', userData);
+
+// PUT
+const updatedUser = await api.put<UpdateUserRequest, User>(`/users/${id}`, userData);
+
+// PATCH
+const patchedUser = await api.patch<Partial<User>, User>(`/users/${id}`, partialData);
+
+// DELETE
+await api.delete(`/users/${id}`);
+```
+
+## Performance Benefits
+
+- **Zero Dependencies**: No external libraries required
+- **Small Bundle Size**: Lightweight implementation
+- **Native Fetch**: Uses browser's native HTTP client
+- **Tree Shaking**: Only import what you need
+- **Modern JavaScript**: Built for modern browsers
 
 ## Contributing
 
