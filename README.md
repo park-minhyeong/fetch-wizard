@@ -1,4 +1,4 @@
-# Fetch Wizard 🧙‍♂️
+# API Wizard 🧙‍♂️
 
 A powerful TypeScript wrapper for native Fetch API that provides enhanced features including token management, interceptors, and type-safe HTTP requests.
 
