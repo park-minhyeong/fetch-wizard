@@ -1,0 +1,31 @@
+{
+  "name": "fetch-wizard",
+  "version": "0.0.0",
+  "description": "handle fetch easily",
+  "main": "index.js",
+  "module": "./dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./index.js",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rimraf ./dist && tsc -p tsconfig.build.json --noEmit false",
+    "test": "ts-node src/test.ts",
+    "upload": "npm run build && npm version patch && node setupPackage.js && cd dist && npm publish && git push && git push --tags"
+  },
+  "keywords": [
+    "fetch",
+    "typescript"
+  ],
+  "author": "Min-Hyeong Park <minhyeong.dev@gmail.com>",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "rimraf": "^5.0.5",
+    "@types/node": "^20.11.4"
+  }
+}
