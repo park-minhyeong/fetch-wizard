@@ -1,16 +1,21 @@
 {
-  "name": "fetch-wizard",
-  "version": "0.0.0",
-  "description": "handle fetch easily",
-  "main": "index.js",
+  "name": "api-wizard",
+  "version": "1.0.0",
+  "description": "A powerful TypeScript wrapper for native Fetch API with token management, interceptors, and type-safe HTTP requests",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "type": "module",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./index.js",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rimraf ./dist && tsc -p tsconfig.build.json --noEmit false",
     "test": "ts-node src/test.ts",
@@ -18,8 +23,24 @@
   },
   "keywords": [
     "fetch",
-    "typescript"
+    "typescript",
+    "http",
+    "client",
+    "api",
+    "axios",
+    "interceptor",
+    "token",
+    "authentication",
+    "rest"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/fetch-wizard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/fetch-wizard/issues"
+  },
+  "homepage": "https://github.com/your-username/fetch-wizard#readme",
   "author": "Min-Hyeong Park <minhyeong.dev@gmail.com>",
   "license": "MIT",
   "dependencies": {},
