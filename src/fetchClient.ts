@@ -142,7 +142,8 @@ export class FetchClientImpl implements FetchClient {
       data = null as unknown as T;
     }
 
-    if (!response.ok) {
+    // 500번대 서버 에러만 예외로 처리, 400번대 클라이언트 에러는 정상 응답으로 처리
+    if (!response.ok && response.status >= 500) {
       throw new FetchError(
         response.status, 
         response.statusText, 
