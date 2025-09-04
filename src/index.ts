@@ -1,5 +1,5 @@
-import instance from "./instance";
-import { Http, Option } from "./interface";
+import instance from "./instance.js";
+import { Http, Option } from "./interface/index.js";
 
 type Handler<T> = {
   [p in keyof T]: (option?: Option) => Http;
@@ -14,4 +14,4 @@ function handler<T extends Record<string, string>>(obj: T, globalOption?: Option
 }
 
 export { handler };
-export * from "./interface";
+export * from "./interface/index.js";

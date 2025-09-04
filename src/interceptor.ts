@@ -1,6 +1,6 @@
-import { FetchClientImpl } from './fetchClient';
-import { FetchResponse, FetchRequestConfig } from './interface/Http';
-import { Interceptor, TokenConfig } from './interface/Property';
+import { FetchClientImpl } from './fetchClient.js';
+import { FetchResponse, FetchRequestConfig } from './interface/Http.js';
+import { Interceptor, TokenConfig } from './interface/Property.js';
 
 interface TokenRefreshResult {
   accessToken: string;

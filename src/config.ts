@@ -1,5 +1,5 @@
-import { FetchRequestConfig } from "./interface";
-import { Option } from "./interface";
+import { FetchRequestConfig } from "./interface/index.js";
+import { Option } from "./interface/index.js";
 
 interface CreateFetchDefaultsProps {
   baseUrl: string;

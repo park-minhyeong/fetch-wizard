@@ -1,4 +1,4 @@
-import { FetchRequestConfig, FetchResponse } from "./Fetch";
+import { FetchRequestConfig, FetchResponse } from "./Fetch.js";
 
 interface Http {
   get: <RES = unknown>(

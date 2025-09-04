@@ -1,4 +1,4 @@
-import { FetchRequestConfig, FetchResponse } from "./Http";
+import { FetchRequestConfig, FetchResponse } from "./Http.js";
 
 type DataType =
   | "application/json"

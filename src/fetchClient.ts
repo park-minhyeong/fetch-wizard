@@ -1,4 +1,4 @@
-import { FetchResponse, FetchRequestConfig, FetchClient } from './interface/Http';
+import { FetchResponse, FetchRequestConfig, FetchClient } from './interface/Http.js';
 
 // Axios 호환 에러 인터페이스
 interface AxiosCompatibleError extends Error {
