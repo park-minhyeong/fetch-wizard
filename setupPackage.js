@@ -14,8 +14,25 @@ function main() {
   const sourceObj = JSON.parse(source);
   sourceObj.scripts = {};
   sourceObj.devDependencies = {};
-  if (sourceObj.main && sourceObj.main.startsWith("/dist/"))
-    sourceObj.main = sourceObj.main.slice(5);
+  
+  // Fix main and module paths for dist folder
+  if (sourceObj.main && sourceObj.main.startsWith("./dist/"))
+    sourceObj.main = sourceObj.main.slice(6); // Remove "./dist/"
+  if (sourceObj.module && sourceObj.module.startsWith("./dist/"))
+    sourceObj.module = sourceObj.module.slice(6); // Remove "./dist/"
+  if (sourceObj.types && sourceObj.types.startsWith("./dist/"))
+    sourceObj.types = sourceObj.types.slice(6); // Remove "./dist/"
+    
+  // Fix exports paths
+  if (sourceObj.exports && sourceObj.exports["."] && sourceObj.exports["."].import) {
+    sourceObj.exports["."].import = sourceObj.exports["."].import.replace("./dist/", "./");
+  }
+  if (sourceObj.exports && sourceObj.exports["."] && sourceObj.exports["."].require) {
+    sourceObj.exports["."].require = sourceObj.exports["."].require.replace("./dist/", "./");
+  }
+  if (sourceObj.exports && sourceObj.exports["."] && sourceObj.exports["."].types) {
+    sourceObj.exports["."].types = sourceObj.exports["."].types.replace("./dist/", "./");
+  }
   const distPackageJsonPath = path.join(distPath, "package.json");
   const versionFilePath = path.join(distPath, "version.txt");
   const npmignorePath = path.join(distPath, ".npmignore");
