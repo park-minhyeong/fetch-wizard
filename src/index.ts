@@ -5,9 +5,12 @@ type Handler<T> = {
   [p in keyof T]: (option?: Option) => Http;
 };
 
-function handler<T extends Record<string, string>>(obj: T, globalOption?: Option): Handler<T> {
+function handler<T extends Record<string, string>>(
+  obj: T,
+  globalOption?: Option
+): Handler<T> {
   return Object.keys(obj).reduce<Handler<T>>((acc, cur) => {
-    acc[cur as keyof T] = (option?: Option) => 
+    acc[cur as keyof T] = (option?: Option) =>
       instance(obj[cur], { ...globalOption, ...option });
     return acc;
   }, {} as Handler<T>);
@@ -15,3 +18,4 @@ function handler<T extends Record<string, string>>(obj: T, globalOption?: Option
 
 export { handler };
 export * from "./interface/index.js";
+export * from "./utils.js";
