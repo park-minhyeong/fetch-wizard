@@ -33,6 +33,9 @@ function main() {
   if (sourceObj.exports && sourceObj.exports["."] && sourceObj.exports["."].types) {
     sourceObj.exports["."].types = sourceObj.exports["."].types.replace("./dist/", "./");
   }
+  
+  // Remove files field since we're already in dist folder
+  delete sourceObj.files;
   const distPackageJsonPath = path.join(distPath, "package.json");
   const versionFilePath = path.join(distPath, "version.txt");
   const npmignorePath = path.join(distPath, ".npmignore");
