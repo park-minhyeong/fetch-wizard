@@ -86,7 +86,19 @@ export class FetchClientImpl implements FetchClient {
       return fullURL;
     }
     
-    const searchParams = new URLSearchParams(params);
+    // undefined, null, 빈 문자열 값들을 필터링
+    const filteredParams = Object.entries(params).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, string>);
+    
+    if (Object.keys(filteredParams).length === 0) {
+      return fullURL;
+    }
+    
+    const searchParams = new URLSearchParams(filteredParams);
     return `${fullURL}?${searchParams.toString()}`;
   }
 
