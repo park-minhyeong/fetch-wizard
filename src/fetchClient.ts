@@ -215,30 +215,68 @@ export class FetchClientImpl implements FetchClient {
 
   // POST 메서드  
   async post<T>(url: string, data?: any, config?: FetchRequestConfig): Promise<FetchResponse<T>> {
+    const headers = this.mergeHeaders(this.defaultHeaders, config?.headers);
+    const contentType = headers.get('content-type') || '';
+    
+    let body: string | undefined;
+    if (data) {
+      if (contentType.includes('application/x-www-form-urlencoded')) {
+        // form-urlencoded인 경우 그대로 전달 (이미 URLSearchParams.toString()으로 처리됨)
+        body = typeof data === 'string' ? data : new URLSearchParams(data).toString();
+      } else {
+        // JSON인 경우 JSON.stringify 적용
+        body = JSON.stringify(data);
+      }
+    }
+    
     return this.request<T>({
       url,
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      body,
       ...config
     });
   }
 
   // PUT 메서드
   async put<T>(url: string, data?: any, config?: FetchRequestConfig): Promise<FetchResponse<T>> {
+    const headers = this.mergeHeaders(this.defaultHeaders, config?.headers);
+    const contentType = headers.get('content-type') || '';
+    
+    let body: string | undefined;
+    if (data) {
+      if (contentType.includes('application/x-www-form-urlencoded')) {
+        body = typeof data === 'string' ? data : new URLSearchParams(data).toString();
+      } else {
+        body = JSON.stringify(data);
+      }
+    }
+    
     return this.request<T>({
       url,
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      body,
       ...config
     });
   }
 
   // PATCH 메서드
   async patch<T>(url: string, data?: any, config?: FetchRequestConfig): Promise<FetchResponse<T>> {
+    const headers = this.mergeHeaders(this.defaultHeaders, config?.headers);
+    const contentType = headers.get('content-type') || '';
+    
+    let body: string | undefined;
+    if (data) {
+      if (contentType.includes('application/x-www-form-urlencoded')) {
+        body = typeof data === 'string' ? data : new URLSearchParams(data).toString();
+      } else {
+        body = JSON.stringify(data);
+      }
+    }
+    
     return this.request<T>({
       url,
       method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined,
+      body,
       ...config
     });
   }
