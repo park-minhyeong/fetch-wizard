@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Todo } from '../interfaces/Todo'
+import { Todo, TodoCreate, TodoUpdate } from '../interfaces/Todo'
 import todoApi from '../services/api/todo'
 
 export default function useTodo() {
@@ -41,11 +41,11 @@ export default function useTodo() {
   }, [])
 
   // Todo 생성
-  const createTodo = useCallback(async (todoData: Partial<Todo>) => {
+  const createTodo = useCallback(async (todoData: TodoCreate) => {
     setLoading(true)
     setError(null)
     try {
-      const newTodo = await todoApi.post('/todos', todoData)
+      const newTodo = await todoApi.post(todoData)
       setTodos(prev => [...prev, newTodo])
       return newTodo
     } catch (err: any) {
@@ -57,11 +57,11 @@ export default function useTodo() {
   }, [])
 
   // Todo 수정 (PUT)
-  const updateTodo = useCallback(async (id: number, todoData: Todo) => {
+  const updateTodo = useCallback(async (id: number, todoData: TodoCreate) => {
     setLoading(true)
     setError(null)
     try {
-      const updatedTodo = await todoApi.put(`/todos/${id}`, todoData)
+      const updatedTodo = await todoApi.put(id, todoData)
       setTodos(prev => prev.map(todo => todo.id === id ? updatedTodo : todo))
       if (selectedTodo?.id === id) {
         setSelectedTodo(updatedTodo)
@@ -76,11 +76,11 @@ export default function useTodo() {
   }, [selectedTodo])
 
   // Todo 부분 수정 (PATCH)
-  const patchTodo = useCallback(async (id: number, todoData: Partial<Todo>) => {
+  const patchTodo = useCallback(async (id: number, todoData: TodoUpdate) => {
     setLoading(true)
     setError(null)
     try {
-      const patchedTodo = await todoApi.patch(`/todos/${id}`, todoData)
+      const patchedTodo = await todoApi.patch(id, todoData)
       setTodos(prev => prev.map(todo => todo.id === id ? patchedTodo : todo))
       if (selectedTodo?.id === id) {
         setSelectedTodo(patchedTodo)
@@ -99,7 +99,7 @@ export default function useTodo() {
     setLoading(true)
     setError(null)
     try {
-      await todoApi.delete(`/todos/${id}`)
+      await todoApi.delete(id)
       setTodos(prev => prev.filter(todo => todo.id !== id))
       if (selectedTodo?.id === id) {
         setSelectedTodo(null)

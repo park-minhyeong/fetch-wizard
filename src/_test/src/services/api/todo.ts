@@ -1,4 +1,4 @@
-import { Todo } from "../../interfaces/Todo";
+import { Todo, TodoCreate, TodoUpdate } from "../../interfaces/Todo";
 import http from "../config";
 
 const api = http.api();
@@ -20,26 +20,26 @@ async function get(props?: Partial<ReadOption>): Promise<Todo[]|Todo|undefined> 
 }
 
 // POST 메서드
-async function post(url: string, data: Partial<Todo>): Promise<Todo> {
-	const response = await api.post<Partial<Todo>, Todo>(url, data);
+async function post(data: TodoCreate) {
+	const response = await api.post<TodoCreate, Todo>('/todos', data);
 	return response.data;
 }
 
 // PUT 메서드
-async function put(url: string, data: Todo): Promise<Todo> {
-	const response = await api.put<Todo, Todo>(url, data);
+async function put(id:number, data: TodoCreate) {
+	const response = await api.put<TodoCreate, Todo>(`/todos/${id}`, data);
 	return response.data;
 }
 
 // PATCH 메서드
-async function patch(url: string, data: Partial<Todo>): Promise<Todo> {
-	const response = await api.patch<Partial<Todo>, Todo>(url, data);
+async function patch(id:number, data: TodoUpdate) {
+	const response = await api.patch<TodoUpdate, Todo>(`/todos/${id}`, data);
 	return response.data;
 }
 
 // DELETE 메서드
-async function deleteTodo(url: string): Promise<void> {
-	await api.delete(url);
+async function deleteTodo(id: number) {
+	await api.delete(`/todos/${id}`);
 }
 
 // API 객체 반환
