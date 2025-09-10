@@ -1,17 +1,20 @@
 # API Wizard 🧙‍♂️
 
-A powerful TypeScript wrapper for native Fetch API that provides enhanced features including token management, interceptors, and type-safe HTTP requests.
+A powerful TypeScript wrapper for native Fetch API that provides enhanced features including token management, interceptors, and type-safe HTTP requests. Perfect for both client-side and server-side applications.
 
 ## Features
 
-- 🔒 Built-in token management (access & refresh tokens)
-- 🎯 Type-safe HTTP requests
-- 🔄 Automatic token refresh
-- 🎨 Customizable interceptors
-- 🛠 Flexible configuration options
-- 📝 Content-type and charset management
-- 🌐 Native Fetch API (smaller bundle size)
-- ⚡ Zero dependencies
+- 🔒 **Built-in token management** - Automatic access & refresh token handling
+- 🎯 **Type-safe HTTP requests** - Full TypeScript support with generics
+- 🔄 **Automatic token refresh** - Seamless token renewal with request queuing
+- 🎨 **Customizable interceptors** - Request/response/error interceptors
+- 🛠 **Flexible configuration** - Per-API and global configuration options
+- 📝 **Content-type management** - Support for JSON, form-data, and more
+- 🌐 **Native Fetch API** - Smaller bundle size, no external dependencies
+- ⚡ **Zero dependencies** - Lightweight and fast
+- 🚀 **Axios-compatible** - Easy migration from Axios
+- 🍪 **Cookie support** - Built-in cookie management utilities
+- 🔧 **Server-side ready** - Works in Node.js environments
 
 ## Installation
 
@@ -21,13 +24,15 @@ npm install api-wizard
 yarn add api-wizard
 ```
 
-## Basic Usage
+## Quick Start
+
+### Basic Usage
 
 ```typescript
 import { handler } from 'api-wizard';
 
 // Define API endpoints configuration
-const apiConfig: Record<string, string> = {
+const apiConfig = {
   users: 'https://api.users.com',
   products: 'https://api.products.com'
 };
@@ -39,11 +44,11 @@ const api = handler(apiConfig);
 interface User {
   id: number;
   name: string;
+  email: string;
 }
 
-// GET request with version and without version
-const userApi = api.users({version: 'v1'}); // https://api.users.com/v1
-const legacyUserApi = api.users(); // https://api.users.com
+// GET request with version
+const userApi = api.users({ version: 'v1' }); // https://api.users.com/v1
 
 const getUser = async (id: number) => {
   const response = await userApi.get<User>(`/users/${id}`);
@@ -60,6 +65,22 @@ const createUser = async (userData: CreateUserRequest) => {
   const response = await userApi.post<CreateUserRequest, User>('/users', userData);
   return response.data;
 };
+```
+
+### Direct Instance Usage
+
+```typescript
+import instance from 'api-wizard';
+
+// Create a direct instance
+const api = instance('https://api.example.com', {
+  version: 'v1',
+  contentType: 'application/json'
+});
+
+// Use directly
+const response = await api.get<User[]>('/users');
+const newUser = await api.post<CreateUserRequest, User>('/users', userData);
 ```
 
 ## Advanced Configuration
@@ -266,39 +287,174 @@ const paymentsApi = api.payments({
 
 ## API Methods
 
-All standard HTTP methods are supported:
+All standard HTTP methods are supported with full TypeScript support:
 
 ```typescript
-const api = handler({ base: 'https://api.example.com' }).base({version: 'v1'});
+const api = instance('https://api.example.com', { version: 'v1' });
 
-// GET
+// GET - Retrieve data
 const users = await api.get<User[]>('/users');
+const user = await api.get<User>(`/users/${id}`);
 
-// POST
+// POST - Create new resource
 const newUser = await api.post<CreateUserRequest, User>('/users', userData);
 
-// PUT
+// PUT - Update entire resource
 const updatedUser = await api.put<UpdateUserRequest, User>(`/users/${id}`, userData);
 
-// PATCH
+// PATCH - Partial update
 const patchedUser = await api.patch<Partial<User>, User>(`/users/${id}`, partialData);
 
-// DELETE
+// DELETE - Remove resource
 await api.delete(`/users/${id}`);
+
+// Request with custom config
+const response = await api.get<User[]>('/users', {
+  params: { page: '1', limit: '10' },
+  timeout: 5000,
+  headers: { 'Custom-Header': 'value' }
+});
+```
+
+### Request Configuration
+
+```typescript
+interface FetchRequestConfig extends RequestInit {
+  params?: Record<string, string>;  // Query parameters
+  timeout?: number;                 // Request timeout in ms
+  baseURL?: string;                 // Override base URL
+}
+```
+
+## Cookie Management
+
+API Wizard includes built-in cookie utilities for server-side applications:
+
+```typescript
+import { getCookies, CookieConfig } from 'api-wizard';
+
+// Set cookies for server-side usage
+new CookieConfig('sessionId=abc123; userId=456');
+
+// Get cookies (works in both browser and server)
+const cookies = getCookies();
+```
+
+## Error Handling
+
+API Wizard provides comprehensive error handling with Axios-compatible error structure:
+
+```typescript
+try {
+  const response = await api.get('/protected-resource');
+  // Handle success
+} catch (error) {
+  if (error.response) {
+    // Server responded with error status
+    console.error('Status:', error.response.status);
+    console.error('Data:', error.response.data);
+    console.error('Headers:', error.response.headers);
+  } else if (error.request) {
+    // Request was made but no response received
+    console.error('No response received');
+  } else {
+    // Error in setting up the request
+    console.error('Error:', error.message);
+  }
+}
 ```
 
 ## Performance Benefits
 
 - **Zero Dependencies**: No external libraries required
-- **Small Bundle Size**: Lightweight implementation
+- **Small Bundle Size**: Lightweight implementation (~15KB minified)
 - **Native Fetch**: Uses browser's native HTTP client
 - **Tree Shaking**: Only import what you need
-- **Modern JavaScript**: Built for modern browsers
+- **Modern JavaScript**: Built for modern browsers and Node.js
+- **TypeScript First**: Built with TypeScript from the ground up
+
+## Migration from Axios
+
+API Wizard is designed to be a drop-in replacement for Axios with minimal changes:
+
+```typescript
+// Before (Axios)
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'https://api.example.com',
+  headers: { 'Authorization': 'Bearer token' }
+});
+
+const response = await api.get('/users');
+
+// After (API Wizard)
+import instance from 'api-wizard';
+
+const api = instance('https://api.example.com', {
+  interceptor: {
+    tokenConfig: {
+      getToken: () => 'token',
+      formatAuthHeader: (token) => ({ 'Authorization': `Bearer ${token}` })
+    }
+  }
+});
+
+const response = await api.get('/users');
+```
+
+## Real-world Example
+
+Here's a complete example showing how to use API Wizard in a React application:
+
+```typescript
+// api.ts
+import { handler } from 'api-wizard';
+
+const apiConfig = {
+  users: 'https://api.users.com',
+  products: 'https://api.products.com'
+};
+
+export const api = handler(apiConfig);
+
+// services/userService.ts
+import { api } from '../api';
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+export interface CreateUserRequest {
+  name: string;
+  email: string;
+}
+
+export const userService = {
+  getUsers: () => api.users({ version: 'v1' }).get<User[]>('/users'),
+  getUser: (id: number) => api.users({ version: 'v1' }).get<User>(`/users/${id}`),
+  createUser: (user: CreateUserRequest) => 
+    api.users({ version: 'v1' }).post<CreateUserRequest, User>('/users', user),
+  updateUser: (id: number, user: User) => 
+    api.users({ version: 'v1' }).put<User, User>(`/users/${id}`, user),
+  deleteUser: (id: number) => 
+    api.users({ version: 'v1' }).delete(`/users/${id}`)
+};
+```
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 ## License
 
-MIT
+MIT © [Min-Hyeong Park](https://github.com/park-minhyeong)
