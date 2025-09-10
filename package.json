@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.vite.json --noEmit",
+    "build": "tsc -p tsconfig.vite.json",
     "preview": "vite preview",
     "deploy:build": "rimraf ./dist && tsc -p tsconfig.build.json --noEmit false",
     "deploy:setup":"node setupPackage.js",

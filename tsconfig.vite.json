@@ -8,10 +8,10 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
+		"outDir": "./dist",
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "allowSyntheticDefaultImports": true,
@@ -25,7 +25,6 @@
 
     /* Types */
     "types": ["vite/client"],
-		
 
     /* Path mapping */
     "baseUrl": ".",
