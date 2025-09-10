@@ -17,8 +17,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "rimraf ./dist && tsc -p tsconfig.build.json --noEmit false",
-    "deploy": "npm run build && npm version patch && node setupPackage.js && cd dist && npm publish && git push && git push --tags"
+    "dev": "vite",
+    "build": "tsc -p tsconfig.vite.json --noEmit",
+    "preview": "vite preview",
+    "deploy:build": "rimraf ./dist && tsc -p tsconfig.build.json --noEmit false",
+    "deploy:setup":"node setupPackage.js",
+    "deploy": "npm run build:deploy && npm version patch && npm run deploy:setup && cd dist && npm publish && git push && git push --tags"
   },
   "keywords": [
     "fetch",
@@ -42,10 +46,25 @@
   "homepage": "https://github.com/park-minhyeong/api-wizard#readme",
   "author": "Min-Hyeong Park <minhyeong.dev@gmail.com>",
   "license": "MIT",
-  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.2.2",
+    "@tanstack/react-query": "^5.87.4",
+    "@types/node": "^20.11.4",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^8.53.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "fast-jsx": "^0.0.26",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.1",
     "rimraf": "^5.0.5",
-    "@types/node": "^20.11.4"
+    "tailwindcss": "^4.1.13",
+    "@tailwindcss/vite": "^4.1.13",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0"
   }
 }
