@@ -16,7 +16,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "declaration": true
+    "declaration": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   },
   "include": [
     "src/**/*"

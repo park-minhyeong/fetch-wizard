@@ -5,6 +5,8 @@
     "build",
     "**/_test/**",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "tsconfig.vite.json",
+    "vite.config.ts"
   ]
 }
