@@ -1,5 +1,5 @@
 import { Todo, TodoCreate, TodoUpdate } from "../../interfaces/Todo";
-import http from "../config";
+import http from "../../configs/api-config";
 
 const api = http.api();
 
