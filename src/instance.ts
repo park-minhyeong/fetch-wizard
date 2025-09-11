@@ -1,6 +1,6 @@
 import { FetchClientImpl } from "./fetchClient.js";
 import { InterceptedFetchClient } from "./interceptor.js";
-import { Http, Option, FetchRequestConfig } from "./interface/index.js";
+import { Http, Option, FetchRequestConfig } from "./interfaces/index.js";
 import { fetchRequestConfig, createFetchDefaults } from "./config.js";
 
 function instance(baseUrl: string, option?: Option): Http {
