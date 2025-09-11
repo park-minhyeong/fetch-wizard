@@ -136,14 +136,14 @@ export default function useTodo(id?: number) {
   const deleteTodo = (id: number) => deleteTodoMutation.mutate(id)
 
   // 로딩 상태 통합
-  const loading = todosLoading || 
+  const loading = todosLoading || todoLoading || 
     createTodoMutation.isPending || 
     updateTodoMutation.isPending || 
     patchTodoMutation.isPending || 
     deleteTodoMutation.isPending
 
   // 에러 상태 통합
-  const error = todosError?.message || 
+  const error = todosError?.message ||  todoError?.message || 
     createTodoMutation.error?.message || 
     updateTodoMutation.error?.message || 
     patchTodoMutation.error?.message || 

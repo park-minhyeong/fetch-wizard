@@ -47,11 +47,15 @@ export default function Button({
   };
 
   return (
-    <button 
-      className={cn(baseStyles, variants[variant], sizes[size], className)}
-      {...props}
-    >
-      {children}
-    </button>
+      <button 
+        {...props}
+        onClick={(e)=>{
+          e.stopPropagation()
+          props.onClick?.(e)
+        }}
+        className={cn(baseStyles, variants[variant], sizes[size], className)}
+      >
+        {children}
+      </button>
   );
 }

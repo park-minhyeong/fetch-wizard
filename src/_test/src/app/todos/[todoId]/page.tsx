@@ -43,11 +43,10 @@ export default function TodoDetailPage() {
       console.error('Todo 상태 변경 실패:', err)
     }
   }
-
-  if (loading) {
+  if(!todoId) return null;
+  if (loading && !todo) {
     return <LoadingSpinner text="Todo를 불러오는 중..." />;
   }
-
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -55,7 +54,6 @@ export default function TodoDetailPage() {
       </div>
     );
   }
-
   if (!todo) {
     return (
       <div className="flex justify-center items-center min-h-screen">
