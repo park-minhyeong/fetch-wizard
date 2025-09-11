@@ -15,6 +15,9 @@ A powerful TypeScript wrapper for native Fetch API that provides enhanced featur
 - 🚀 **Axios-compatible** - Easy migration from Axios
 - 🍪 **Cookie support** - Built-in cookie management utilities
 - 🔧 **Server-side ready** - Works in Node.js environments
+- 🧹 **Smart parameter filtering** - Automatic removal of undefined/null/empty values
+- 🎭 **Intelligent error handling** - 400-level errors return as responses, 500-level errors throw
+- 📦 **ES Modules support** - Full compatibility with Vite, Node.js, and modern bundlers
 
 ## Installation
 
@@ -216,26 +219,41 @@ type DataType =
   | "text/html";
 ```
 
-## Error Handling
+## Smart Parameter Filtering
 
-API Wizard provides structured error handling with detailed error information:
+API Wizard automatically filters out undefined, null, and empty string values from query parameters:
 
 ```typescript
-try {
-  const response = await api.get('/protected-resource');
-  // Handle success
-} catch (error) {
-  if (error.response) {
-    // Server responded with error status
-    console.error('Status:', error.response.status);
-    console.error('Data:', error.response.data);
-  } else if (error.request) {
-    // Request was made but no response received
-    console.error('No response received');
-  } else {
-    // Error in setting up the request
-    console.error('Error:', error.message);
+// Before: ?page=undefined&limit=10&search=
+// After: ?limit=10
+const response = await api.get('/users', {
+  params: {
+    page: undefined,    // Automatically removed
+    limit: 10,         // Kept and converted to string
+    search: '',        // Automatically removed
+    status: null       // Automatically removed
   }
+});
+```
+
+## Intelligent Error Handling
+
+API Wizard provides intelligent error handling that distinguishes between client and server errors:
+
+```typescript
+// 400-level errors (client errors) are returned as normal responses
+const response = await api.get('/users/999');
+if (!response.ok) {
+  console.log('Client error:', response.status); // 404
+  console.log('Error data:', response.data);     // Error details
+}
+
+// 500-level errors (server errors) throw exceptions
+try {
+  const response = await api.get('/server-error');
+} catch (error) {
+  console.error('Server error:', error.message);
+  // Handle server error
 }
 ```
 
@@ -328,40 +346,184 @@ interface FetchRequestConfig extends RequestInit {
 
 ## Cookie Management
 
-API Wizard includes built-in cookie utilities for server-side applications:
+API Wizard includes built-in cookie utilities for both client-side and server-side applications:
+
+### Browser Environment
+
+```typescript
+import { getCookies } from 'api-wizard';
+
+// Automatically reads from document.cookie
+const cookies = getCookies();
+console.log(cookies); // "sessionId=abc123; userId=456; theme=dark"
+```
+
+### Server-Side Environment (Node.js/Express)
 
 ```typescript
 import { getCookies, CookieConfig } from 'api-wizard';
 
 // Set cookies for server-side usage
-new CookieConfig('sessionId=abc123; userId=456');
+new CookieConfig('sessionId=abc123; userId=456; theme=dark');
 
-// Get cookies (works in both browser and server)
+// Get cookies (returns the configured cookies)
 const cookies = getCookies();
+console.log(cookies); // "sessionId=abc123; userId=456; theme=dark"
 ```
 
-## Error Handling
+### Advanced Cookie Usage
 
-API Wizard provides comprehensive error handling with Axios-compatible error structure:
+#### Express Server Integration
 
 ```typescript
-try {
-  const response = await api.get('/protected-resource');
-  // Handle success
-} catch (error) {
-  if (error.response) {
-    // Server responded with error status
-    console.error('Status:', error.response.status);
-    console.error('Data:', error.response.data);
-    console.error('Headers:', error.response.headers);
-  } else if (error.request) {
-    // Request was made but no response received
-    console.error('No response received');
-  } else {
-    // Error in setting up the request
-    console.error('Error:', error.message);
+import { getCookies, CookieConfig } from 'api-wizard';
+import { handler } from 'api-wizard';
+import express from 'express';
+
+const app = express();
+
+// API configuration
+const apiConfig = {
+  sso: 'https://api.sso.com',
+  users: 'https://api.users.com'
+};
+
+const api = handler(apiConfig);
+
+// Express route with cookie forwarding
+app.get('/api/sso/sign', async (req, res) => {
+  try {
+    // 클라이언트의 쿠키를 전역으로 설정
+    new CookieConfig(req.headers.cookie || '');
+    
+    if (req.headers.cookie) {
+      console.log('Received cookies:', req.headers.cookie);
+    }
+    
+    // API 호출 (쿠키가 자동으로 포함됨)
+    const response = await ssoApi.sign.get();
+    
+    if (response.status > 299) {
+      return res.status(401).json("Unauthorized");
+    }
+    
+    res.json(response);
+  } catch (error) {
+    console.error('SSO Sign API Error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch sign data',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });   
   }
+});
+```
+
+#### Service Layer with Cookie Interceptor
+
+```typescript
+// services/ssoService.ts
+import { getCookies, CookieConfig } from 'api-wizard';
+import { handler } from 'api-wizard';
+
+const apiConfig = {
+  sso: 'https://api.sso.com'
+};
+
+const api = handler(apiConfig);
+
+interface SignApi {
+  userId: string;
+  userName: string;
+  isAuthenticated: boolean;
+  permissions: string[];
 }
+
+// SSO API 서비스
+export const ssoApi = {
+  sign: {
+    async get(): Promise<FetchResponse<SignApi>> {
+      const api = api.sso({ 
+        version: "v3", 
+        interceptor: {
+          onRequest: (config) => {
+            const cookies = getCookies();
+            if (cookies) {
+              config.headers = {
+                ...config.headers,
+                'Cookie': cookies
+              };
+            }
+            return config;
+          }
+        }
+      });
+      
+      return await api.get<SignApi>("/sign");
+    }
+  }
+};
+```
+
+#### Middleware for Global Cookie Configuration
+
+```typescript
+// middleware/cookieMiddleware.ts
+import { CookieConfig } from 'api-wizard';
+
+export const cookieMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // 모든 요청에서 쿠키를 전역으로 설정
+  if (req.headers.cookie) {
+    new CookieConfig(req.headers.cookie);
+    console.log('Cookies configured:', req.headers.cookie);
+  }
+  next();
+};
+
+// app.ts
+app.use(cookieMiddleware);
+```
+
+### Cookie Parsing Utilities
+
+```typescript
+// Parse cookies into an object
+function parseCookies(cookieString: string): Record<string, string> {
+  return cookieString
+    .split(';')
+    .reduce((cookies, cookie) => {
+      const [name, value] = cookie.trim().split('=');
+      cookies[name] = value;
+      return cookies;
+    }, {} as Record<string, string>);
+}
+
+// Usage example
+const cookieString = "sessionId=abc123; userId=456; theme=dark";
+const cookieObj = parseCookies(cookieString);
+console.log(cookieObj.sessionId); // "abc123"
+console.log(cookieObj.userId);    // "456"
+```
+
+## Content-Type Based Body Handling
+
+API Wizard automatically handles request bodies based on Content-Type headers:
+
+   ```typescript
+// JSON body (default)
+const response = await api.post('/users', userData);
+// Body: JSON.stringify(userData)
+
+// Form URL-encoded body
+const response = await api.post('/login', formData, {
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+});
+// Body: URLSearchParams(formData).toString()
+
+// Custom body handling
+const response = await api.post('/upload', fileData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+// Body: FormData object
 ```
 
 ## Performance Benefits
@@ -372,6 +534,8 @@ try {
 - **Tree Shaking**: Only import what you need
 - **Modern JavaScript**: Built for modern browsers and Node.js
 - **TypeScript First**: Built with TypeScript from the ground up
+- **ES Modules**: Full ESM support for modern bundlers
+- **Universal Compatibility**: Works seamlessly in Vite, Webpack, Node.js, and Express
 
 ## Migration from Axios
 

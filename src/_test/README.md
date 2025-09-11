@@ -139,21 +139,38 @@ import { cn } from 'fast-jsx/util';
 
 ### 4. 상태 관리 패턴
 
-#### **커스텀 훅 패턴**
-- 비즈니스 로직을 커스텀 훅으로 분리
-- 컴포넌트와 로직의 관심사 분리
+#### **React Query 기반 서버 상태 관리**
+- React Query를 활용한 캐싱, 동기화, 백그라운드 업데이트
+- Optimistic Updates로 즉시 UI 반영
+- 자동 에러 처리 및 재시도 로직
 
 ```typescript
-// useTodo.ts - Todo 관련 상태 관리
-export default function useTodo() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [loading, setLoading] = useState(false);
+// useTodo.ts - React Query 기반 Todo 상태 관리
+export default function useTodo(id?: number) {
+  const queryClient = useQueryClient();
   
-  const getTodos = useCallback(async () => {
-    // API 호출 로직
-  }, []);
+  // Query Keys로 체계적인 캐시 관리
+  const QUERY_KEYS = {
+    todos: ['todos'] as const,
+    todo: (id: number) => ['todos', id] as const,
+  };
   
-  return { todos, loading, getTodos };
+  // 자동 캐싱 및 백그라운드 업데이트
+  const { data: todos = [], isLoading, refetch } = useQuery({
+    queryKey: QUERY_KEYS.todos,
+    queryFn: () => todoApi.get(),
+    staleTime: 5 * 60 * 1000, // 5분
+  });
+  
+  // Optimistic Updates
+  const createTodoMutation = useMutation({
+    mutationFn: todoApi.post,
+    onSuccess: (newTodo) => {
+      queryClient.setQueryData(QUERY_KEYS.todos, (old: Todo[] = []) => [...old, newTodo]);
+    }
+  });
+  
+  return { todos, loading: isLoading, createTodo: createTodoMutation.mutate };
 }
 ```
 
@@ -162,16 +179,34 @@ export default function useTodo() {
 #### **서비스 분리 패턴**
 - API 호출 로직을 별도 서비스로 분리
 - 컴포넌트에서 비즈니스 로직 분리
+- API Wizard를 활용한 타입 안전한 HTTP 클라이언트
 
 ```typescript
 // services/api/todo.ts
-export default {
-  get: async (props?: { id: number }) => {
-    // API 호출 로직
-  },
-  post: async (url: string, data: Partial<Todo>) => {
-    // POST 요청 로직
+import http from "../../configs/api-config";
+
+const api = http.api();
+
+// 오버로드된 함수 시그니처로 타입 안전성 보장
+async function get(): Promise<Todo[]>;
+async function get(props: {id: number}): Promise<Todo|undefined>;
+async function get(props: Omit<ReadOption, 'id'>): Promise<Todo[]>;
+async function get(props?: Partial<ReadOption>): Promise<Todo[]|Todo|undefined> {
+  if(props?.id){
+    const response = await api.get<Todo | undefined>(`/todos/${props.id}`);
+    return response.data;
   }
+  const { id, ...params } = props || {};
+  const response = await api.get<Todo[]>("/todos", { params });
+  return response.data;
+}
+
+export default {
+  get,
+  post: (data: TodoCreate) => api.post<TodoCreate, Todo>('/todos', data),
+  put: (id: number, data: TodoCreate) => api.put<TodoCreate, Todo>(`/todos/${id}`, data),
+  patch: (id: number, data: TodoUpdate) => api.patch<TodoUpdate, Todo>(`/todos/${id}`, data),
+  delete: (id: number) => api.delete(`/todos/${id}`)
 };
 ```
 
@@ -199,7 +234,7 @@ export default function useRoute() {
 - **Vite**: 빌드 도구
 - **Tailwind CSS**: 스타일링
 - **Fast-JSX**: 스타일 유틸리티 (`cn` 함수)
-- **React Query**: 서버 상태 관리
+- **React Query (TanStack Query)**: 서버 상태 관리 및 캐싱
 - **React Router**: 클라이언트 사이드 라우팅
 - **API Wizard**: HTTP 클라이언트 (테스트 대상)
 
@@ -258,5 +293,15 @@ export default function useRoute() {
 - **Template Pattern**: 문서 섹션별 독립적인 템플릿
 - **Provider Pattern**: DocumentProvider를 통한 템플릿 관리
 - **Type Safety**: TypeScript로 완전한 타입 안전성 보장
+- **React Query Integration**: 서버 상태 관리 최적화
+- **Smart Caching**: 자동 캐싱 및 백그라운드 업데이트
+- **Optimistic Updates**: 즉시 UI 반영으로 사용자 경험 향상
+
+### 🔄 React Query 통합
+- **자동 캐싱**: 중복 요청 방지 및 성능 최적화
+- **백그라운드 동기화**: 포커스, 네트워크 재연결 시 자동 업데이트
+- **Optimistic Updates**: 서버 응답 전 즉시 UI 업데이트
+- **스마트 무효화**: 관련 데이터만 선택적 업데이트
+- **에러 처리**: 자동 재시도 및 에러 상태 관리
 
 이 구조는 대규모 React 애플리케이션에서도 확장 가능하며, 팀 개발 환경에서 일관된 코드 품질을 유지할 수 있도록 설계되었습니다.
