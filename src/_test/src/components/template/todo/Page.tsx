@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import Button from "../atom/Button";
+import Button from "../../atom/Button";
 
 interface TodoPageTemplateProps {
   title: string;

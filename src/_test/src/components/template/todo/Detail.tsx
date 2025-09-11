@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import Button from "../atom/Button";
-import Card from "../molecule/Card";
+import Button from "../../atom/Button";
+import Card from "../../molecule/Card";
 
 interface TodoDetailTemplateProps {
   title: string;
