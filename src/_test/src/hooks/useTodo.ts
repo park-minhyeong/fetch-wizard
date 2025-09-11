@@ -56,7 +56,7 @@ export default function useTodo() {
     }
   }, [])
 
-  // Todo 수정 (PUT)
+  // Todo 수정 (PUT) 멱등성 보장
   const updateTodo = useCallback(async (id: number, todoData: TodoCreate) => {
     setLoading(true)
     setError(null)
