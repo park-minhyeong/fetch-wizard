@@ -18,9 +18,9 @@ export default function App() {
         </p>
         <div className="flex gap-4 justify-center">
           <Button size="lg" onClick={() => router('/todos')}>
-            Todo 목록 보기
+            샘플 보기
           </Button>
-          <Button variant="secondary" size="lg">
+          <Button variant="secondary" size="lg" onClick={() => router('/docs')}>
             문서 보기
           </Button>
         </div>

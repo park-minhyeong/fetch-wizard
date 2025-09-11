@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import useTodo from '../../hooks/useTodo'
-import TodoPageTemplate from '../../components/template/TodoPageTemplate'
+import TodoPageTemplate from '../../components/template/todo/Page'
 import TodoList from '../../components/organism/TodoList'
 
 export default function TodosPage() {

@@ -1,7 +1,7 @@
 import  { Fragment, ComponentType } from 'react'
 import useRoute from '../hooks/useRoute';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Loading from '../components/Loading';
+import LoadingSpinner from '../components/atom/Loading.Spinner';
 export default function App() {
   const routes = useRoute();
   return (
@@ -20,7 +20,7 @@ export default function App() {
           path="*"
           element={
             <div className="flex justify-center items-center w-full min-h-screen">
-              <Loading />
+              <LoadingSpinner />
             </div>
           }
         />
