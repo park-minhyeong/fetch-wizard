@@ -10,21 +10,20 @@ import Button from '../../../components/atom/Button'
 
 export default function TodoDetailPage() {
   const { todoId } = useParams<{ todoId: string }>()
-  const { selectedTodo, loading, error, getTodo, updateTodo, patchTodo } = useTodo()
+  const { todo, loading, error, getTodo, patchTodo } = useTodo(Number(todoId))
   const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
     if (todoId) {
-      getTodo(parseInt(todoId))
+      getTodo()
     }
   }, [todoId, getTodo])
 
   const handleUpdateTodo = async (data: Partial<any>) => {
-    if (!todoId || !selectedTodo) return
-
+    if (!todoId || !todo) return
     try {
-      await updateTodo(parseInt(todoId), {
-        ...selectedTodo,
+      await patchTodo(parseInt(todoId), {
+        ...todo,
         ...data
       })
       setIsEditing(false)
@@ -38,7 +37,7 @@ export default function TodoDetailPage() {
 
     try {
       await patchTodo(parseInt(todoId), {
-        completed: !selectedTodo?.completed
+        completed: !todo?.completed
       })
     } catch (err) {
       console.error('Todo 상태 변경 실패:', err)
@@ -57,7 +56,7 @@ export default function TodoDetailPage() {
     );
   }
 
-  if (!selectedTodo) {
+  if (!todo) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-xl">Todo를 찾을 수 없습니다.</div>
@@ -73,20 +72,20 @@ export default function TodoDetailPage() {
     >
       {isEditing ? (
         <TodoForm
-          todo={selectedTodo}
+          todo={todo}
           onSubmit={handleUpdateTodo}
           onCancel={() => setIsEditing(false)}
         />
       ) : (
         <div className="space-y-4">
           <TitleBox title="제목">
-            <p className="text-lg">{selectedTodo.title}</p>
+            <p className="text-lg">{todo.title}</p>
           </TitleBox>
 
           <TitleBox title="상태">
             <div className="flex items-center gap-2">
               <StatusBadge 
-                status={selectedTodo.completed ? "completed" : "pending"} 
+                status={todo.completed ? "completed" : "pending"} 
                 size="md" 
               />
               <Button 
@@ -100,11 +99,11 @@ export default function TodoDetailPage() {
           </TitleBox>
 
           <TitleBox title="ID">
-            <p className="text-gray-600">{selectedTodo.id}</p>
+            <p className="text-gray-600">{todo.id}</p>
           </TitleBox>
 
           <TitleBox title="사용자 ID">
-            <p className="text-gray-600">{selectedTodo.userId}</p>
+            <p className="text-gray-600">{todo.userId}</p>
           </TitleBox>
         </div>
       )}
