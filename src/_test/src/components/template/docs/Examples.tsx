@@ -1,5 +1,5 @@
 import Section from '../../atom/Section';
-import SubSection from '../../atom/SubSection';
+import SubSection from '../../atom/Section.Sub';
 import CodeBlock from '../../atom/CodeBlock';
 
 export default function ExamplesTemplate() {
