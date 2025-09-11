@@ -7,8 +7,9 @@ export interface FetchResponse<T = any> {
   ok: boolean;
 }
 
+export type FetchParams = Record<string, string | number | undefined>;
 export interface FetchRequestConfig extends RequestInit {
-  params?: Record<string, string>;
+  params?: FetchParams;
   timeout?: number;
   baseURL?: string;
 }

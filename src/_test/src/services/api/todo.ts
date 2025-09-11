@@ -5,17 +5,21 @@ const api = http.api();
 
 interface ReadOption {
 	id: number;
+	page: number;
+	limit: number;
 }
 
 // GET 메서드 오버로드
 async function get(): Promise<Todo[]>;
 async function get(props: {id: number}): Promise<Todo|undefined>;
+async function get(props: Omit<ReadOption, 'id'>): Promise<Todo[]>;
 async function get(props?: Partial<ReadOption>): Promise<Todo[]|Todo|undefined> {
 	if(props?.id){
-		const response = await api.get<Todo>(`/todos/${props.id}`);
+		const response = await api.get<Todo | undefined>(`/todos/${props.id}`);
 		return response.data;
 	}
-	const response = await api.get<Todo[]>("/todos");
+	const { id, ...params } = props || {};
+	const response = await api.get<Todo[]>("/todos", { params });
 	return response.data;
 }
 

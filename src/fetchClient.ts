@@ -1,4 +1,5 @@
 import { FetchResponse, FetchRequestConfig, FetchClient } from './interfaces/Http.js';
+import { FetchParams } from './interfaces/Fetch.js';
 
 // Axios 호환 에러 인터페이스
 interface AxiosCompatibleError extends Error {
@@ -80,16 +81,16 @@ export class FetchClientImpl implements FetchClient {
   }
 
   // URL 생성 헬퍼
-  private buildURL(url: string, params?: Record<string, string>): string {
+  private buildURL(url: string, params?: FetchParams): string {
     const fullURL = this.baseURL + url;
     if (!params || Object.keys(params).length === 0) {
       return fullURL;
     }
     
-    // undefined, null, 빈 문자열 값들을 필터링
+    // undefined, null, 빈 문자열 값들을 필터링하고 문자열로 변환
     const filteredParams = Object.entries(params).reduce((acc, [key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
-        acc[key] = value;
+        acc[key] = String(value);
       }
       return acc;
     }, {} as Record<string, string>);
