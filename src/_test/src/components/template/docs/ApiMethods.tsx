@@ -20,7 +20,7 @@ const user = await api.get<User>(\`/users/\${id}\`);`}</CodeBlock>
 
       <SubSection title="POST - 데이터 생성">
         <CodeBlock>{`// JSON 데이터 전송
-const newUser = await api.post<CreateUserRequest, User>('/users', {
+const newUser = await api.post<UserCreate, User>('/users', {
   name: 'John Doe',
   email: 'john@example.com'
 });
@@ -37,7 +37,7 @@ const response = await formApi.post('/users', formData.toString());`}</CodeBlock
       </SubSection>
 
       <SubSection title="PUT - 전체 업데이트">
-        <CodeBlock>{`const updatedUser = await api.put<User, User>(\`/users/\${id}\`, {
+        <CodeBlock>{`const updatedUser = await api.put<UserCreate, User>(\`/users/\${id}\`, {
   id: 1,
   name: 'Updated Name',
   email: 'updated@example.com'
@@ -45,7 +45,7 @@ const response = await formApi.post('/users', formData.toString());`}</CodeBlock
       </SubSection>
 
       <SubSection title="PATCH - 부분 업데이트">
-        <CodeBlock>{`const patchedUser = await api.patch<Partial<User>, User>(\`/users/\${id}\`, {
+        <CodeBlock>{`const patchedUser = await api.patch<UserUpdate, User>(\`/users/\${id}\`, {
   name: 'New Name'
 });`}</CodeBlock>
       </SubSection>
