@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Todo } from "../../interfaces/Todo";
 import Button from "../atom/Button";
 import StatusBadge from "../molecule/StatusBadge";
@@ -10,7 +11,7 @@ interface TodoCardProps {
 
 export default function TodoCard({ todo, onDelete, onEdit }: TodoCardProps) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <Link to={`/todos/${todo.id}`} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="text-lg font-semibold mb-2">{todo.title}</h3>
@@ -42,6 +43,6 @@ export default function TodoCard({ todo, onDelete, onEdit }: TodoCardProps) {
           </Button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

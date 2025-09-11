@@ -1,6 +1,6 @@
 import { Todo } from "../../interfaces/Todo";
 import TodoCard from "./TodoCard";
-import LoadingSpinner from "../molecule/LoadingSpinner";
+import LoadingSpinner from "../atom/Loading.Spinner";
 
 interface TodoListProps {
   todos: Todo[];
