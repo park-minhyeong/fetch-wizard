@@ -11,8 +11,11 @@ src/_test/
 │   ├── main.tsx              # React 애플리케이션 엔트리 포인트
 │   ├── globals.css           # 전역 스타일 (Tailwind CSS)
 │   ├── app/                  # 페이지 컴포넌트 (App Router 패턴)
-│   │   ├── layout.tsx        # 루트 레이아웃
+│   │   ├── layout.tsx        # 루트 레이아웃 (고정 헤더/푸터)
 │   │   ├── page.tsx          # 홈 페이지
+│   │   ├── index.tsx         # 메인 인덱스 페이지
+│   │   ├── docs/             # API 문서 페이지
+│   │   │   └── page.tsx      # 문서 뷰어
 │   │   └── todos/            # Todo 관련 페이지
 │   │       ├── page.tsx      # Todo 목록 페이지
 │   │       └── [todoId]/     # 동적 라우팅
@@ -22,20 +25,38 @@ src/_test/
 │   │   │   ├── Button.tsx
 │   │   │   ├── Input.tsx
 │   │   │   ├── Badge.tsx
-│   │   │   └── Label.tsx
+│   │   │   ├── Label.tsx
+│   │   │   ├── CodeBlock.tsx # 코드 블록 컴포넌트
+│   │   │   ├── Section.tsx   # 섹션 헤더 컴포넌트
+│   │   │   └── SubSection.tsx # 서브섹션 컴포넌트
 │   │   ├── molecule/         # 조합된 UI 컴포넌트
 │   │   │   ├── FormField.tsx
 │   │   │   ├── Card.tsx
 │   │   │   ├── StatusBadge.tsx
-│   │   │   ├── LoadingSpinner.tsx
-│   │   │   └── TitleBox.tsx
+│   │   │   ├── Loading.Spinner.tsx
+│   │   │   ├── TitleBox.tsx
+│   │   │   ├── Navigation.tsx # 네비게이션 컴포넌트
+│   │   │   ├── Sidebar.tsx   # 사이드바 컴포넌트 (고정)
+│   │   │   ├── ContentArea.tsx # 콘텐츠 영역 컴포넌트
+│   │   │   └── InfoBox.tsx   # 정보 박스 컴포넌트
 │   │   ├── organism/         # 도메인별 복합 컴포넌트
 │   │   │   ├── TodoCard.tsx
 │   │   │   ├── TodoList.tsx
 │   │   │   └── TodoForm.tsx
 │   │   └── template/         # 페이지 레이아웃 템플릿
-│   │       ├── TodoPageTemplate.tsx
-│   │       └── TodoDetailTemplate.tsx
+│   │       ├── todo/         # Todo 관련 템플릿
+│   │       │   ├── TodoPageTemplate.tsx
+│   │       │   └── TodoDetailTemplate.tsx
+│   │       └── docs/         # 문서 관련 템플릿
+│   │           ├── Installation.tsx
+│   │           ├── BasicUsage.tsx
+│   │           ├── ApiMethods.tsx
+│   │           ├── Configuration.tsx
+│   │           ├── Interceptors.tsx
+│   │           ├── ErrorHandling.tsx
+│   │           ├── Examples.tsx
+│   │           ├── Migration.tsx
+│   │           └── index.ts   # 템플릿 Provider
 │   ├── hooks/                # 커스텀 React 훅
 │   │   ├── useTodo.ts        # Todo 관련 상태 관리
 │   │   └── useRoute.ts       # 동적 라우팅 훅
@@ -97,21 +118,23 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 ### 3. 스타일링 패턴
 
 #### **Fast-JSX CN 유틸리티**
-- 복잡한 스타일링에만 `cn` 유틸리티 사용
-- 간단한 스타일은 직접 Tailwind CSS 클래스 사용
-- 객체 기반 스타일 정의로 가독성 향상
+- 모든 컴포넌트에서 `cn` 유틸리티 사용
+- 조건부 스타일링과 클래스 병합에 활용
+- 일관된 스타일링 패턴 적용
 
 ```typescript
-// 복잡한 스타일링
-const button = {
-  displays: "inline-flex items-center justify-center",
-  colors: "bg-blue-600 text-white",
-  transitions: "transition-colors duration-200",
-  states: "hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500",
-};
+// CN 유틸리티 사용
+import { cn } from 'fast-jsx/util';
 
-// 간단한 스타일링
-<div className="flex justify-center items-center min-h-screen">
+// 조건부 스타일링
+<div className={cn(
+  'w-64 bg-white backdrop-blur-sm overflow-y-auto',
+  isSticky && 'sticky top-0 h-screen',
+  className
+)}>
+
+// 간단한 스타일링도 CN 사용
+<div className={cn('flex justify-center items-center min-h-screen')}>
 ```
 
 ### 4. 상태 관리 패턴
@@ -175,9 +198,10 @@ export default function useRoute() {
 - **TypeScript**: 타입 안전성
 - **Vite**: 빌드 도구
 - **Tailwind CSS**: 스타일링
-- **Fast-JSX**: 스타일 유틸리티
+- **Fast-JSX**: 스타일 유틸리티 (`cn` 함수)
 - **React Query**: 서버 상태 관리
-- **API Wizard**: HTTP 클라이언트
+- **React Router**: 클라이언트 사이드 라우팅
+- **API Wizard**: HTTP 클라이언트 (테스트 대상)
 
 ## 📁 폴더별 역할
 
@@ -214,5 +238,25 @@ export default function useRoute() {
 4. **타입 안전성**: TypeScript를 통한 타입 체크
 5. **성능**: 최적화된 렌더링과 번들 크기
 6. **개발자 경험**: 직관적인 구조와 명확한 네이밍
+
+## ✨ 주요 기능
+
+### 📚 API 문서 시스템
+- **인터랙티브 문서 뷰어**: 좌측 네비게이션과 우측 콘텐츠 영역
+- **고정 레이아웃**: 헤더와 사이드바가 스크롤 시에도 고정
+- **템플릿 기반**: 각 문서 섹션이 독립적인 템플릿으로 구성
+- **코드 하이라이팅**: 구문 강조가 적용된 코드 블록
+
+### 🎨 UI/UX 개선사항
+- **Sticky Navigation**: 헤더와 사이드바 고정으로 사용성 향상
+- **반응형 디자인**: 모바일과 데스크톱 환경 모두 지원
+- **일관된 스타일링**: Fast-JSX CN 유틸리티로 통일된 스타일 관리
+- **부드러운 애니메이션**: 호버 효과와 전환 애니메이션
+
+### 🏗️ 아키텍처 개선
+- **Atomic Design**: 완전한 계층적 컴포넌트 구조
+- **Template Pattern**: 문서 섹션별 독립적인 템플릿
+- **Provider Pattern**: DocumentProvider를 통한 템플릿 관리
+- **Type Safety**: TypeScript로 완전한 타입 안전성 보장
 
 이 구조는 대규모 React 애플리케이션에서도 확장 가능하며, 팀 개발 환경에서 일관된 코드 품질을 유지할 수 있도록 설계되었습니다.
