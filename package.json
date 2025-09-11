@@ -22,7 +22,7 @@
     "preview": "vite preview",
     "deploy:build": "rimraf ./dist && tsc -p tsconfig.build.json --noEmit false",
     "deploy:setup":"node setupPackage.js",
-    "deploy": "npm run build:deploy && npm version patch && npm run deploy:setup && cd dist && npm publish && git push && git push --tags"
+    "deploy": "npm run deploy:build && npm version patch && npm run deploy:setup && cd dist && npm publish && git push && git push --tags"
   },
   "keywords": [
     "fetch",
